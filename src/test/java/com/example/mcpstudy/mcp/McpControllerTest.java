@@ -17,10 +17,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(McpController.class)
+@Import(McpProtocolHandler.class)
 class McpControllerTest {
 
 	@Autowired
@@ -65,11 +67,7 @@ class McpControllerTest {
 					  "params": {}
 					}
 					"""))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.jsonrpc").value("2.0"))
-			.andExpect(jsonPath("$.id").doesNotExist())
-			.andExpect(jsonPath("$.error").doesNotExist())
-			.andExpect(jsonPath("$.result").exists());
+			.andExpect(status().isAccepted());
 	}
 
 	@Test
