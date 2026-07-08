@@ -7,6 +7,10 @@ plugins {
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
+springBoot {
+	mainClass = 'com.example.mcpstudy.McpstudyApplication'
+}
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
@@ -28,4 +32,11 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks.register('stdioBootJar', org.springframework.boot.gradle.tasks.bundling.BootJar) {
+	archiveClassifier = 'stdio'
+	mainClass = 'com.example.mcpstudy.McpStdioApplication'
+	targetJavaVersion = JavaVersion.VERSION_21
+	classpath(sourceSets.main.runtimeClasspath)
 }
