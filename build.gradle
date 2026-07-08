@@ -33,10 +33,3 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-tasks.register('stdioBootJar', org.springframework.boot.gradle.tasks.bundling.BootJar) {
-	archiveClassifier = 'stdio'
-	mainClass = 'com.example.mcpstudy.McpStdioApplication'
-	targetJavaVersion = JavaVersion.VERSION_21
-	classpath(sourceSets.main.runtimeClasspath)
-}

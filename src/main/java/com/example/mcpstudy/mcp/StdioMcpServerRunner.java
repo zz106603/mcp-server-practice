@@ -14,10 +14,14 @@ import java.util.Optional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StdioMcpServerRunner {
+@ConditionalOnProperty(name = "mcp.stdio.enabled", havingValue = "true")
+public class StdioMcpServerRunner implements ApplicationRunner {
 
 	private final ObjectMapper objectMapper;
 	private final McpProtocolHandler protocolHandler;
@@ -29,6 +33,11 @@ public class StdioMcpServerRunner {
 
 	public void run() {
 		run(System.in, System.out, System.err);
+	}
+
+	@Override
+	public void run(ApplicationArguments args) {
+		run();
 	}
 
 	void run(InputStream inputStream, OutputStream outputStream, PrintStream errorStream) {
