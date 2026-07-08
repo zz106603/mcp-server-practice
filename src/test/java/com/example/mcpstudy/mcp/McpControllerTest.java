@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -49,6 +50,7 @@ class McpControllerTest {
 					}
 					"""))
 			.andExpect(status().isOk())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.jsonrpc").value("2.0"))
 			.andExpect(jsonPath("$.id").value(1))
 			.andExpect(jsonPath("$.error").doesNotExist())
@@ -69,7 +71,8 @@ class McpControllerTest {
 					  "params": {}
 					}
 					"""))
-			.andExpect(status().isAccepted());
+			.andExpect(status().isAccepted())
+			.andExpect(content().string(""));
 	}
 
 	@Test
@@ -87,6 +90,7 @@ class McpControllerTest {
 					}
 					"""))
 			.andExpect(status().isOk())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.jsonrpc").value("2.0"))
 			.andExpect(jsonPath("$.id").value(1))
 			.andExpect(jsonPath("$.error").doesNotExist())
@@ -119,6 +123,7 @@ class McpControllerTest {
 					}
 					"""))
 			.andExpect(status().isOk())
+			.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
 			.andExpect(jsonPath("$.jsonrpc").value("2.0"))
 			.andExpect(jsonPath("$.id").value(2))
 			.andExpect(jsonPath("$.error").doesNotExist())

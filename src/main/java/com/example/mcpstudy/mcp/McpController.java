@@ -1,5 +1,6 @@
 package com.example.mcpstudy.mcp;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,7 +17,7 @@ public class McpController {
 		this.protocolHandler = protocolHandler;
 	}
 
-	@PostMapping("/mcp")
+	@PostMapping(value = "/mcp", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<McpJsonRpcResponse> handle(@RequestBody(required = false) McpJsonRpcRequest request) {
 		return protocolHandler.handle(request)
 			.map(ResponseEntity::ok)
