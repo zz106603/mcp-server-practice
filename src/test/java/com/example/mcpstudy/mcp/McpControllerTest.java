@@ -1,5 +1,7 @@
 package com.example.mcpstudy.mcp;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -97,7 +99,7 @@ class McpControllerTest {
 	}
 
 	@Test
-	void callsToolAndReturnsToolResponseAsResult() throws Exception {
+	void callsToolAndReturnsMcpToolResult() throws Exception {
 		when(toolExecutor.execute(org.mockito.ArgumentMatchers.any()))
 			.thenReturn(McpToolResponse.success(Map.of("id", 1L, "username", "alice")));
 
@@ -120,14 +122,16 @@ class McpControllerTest {
 			.andExpect(jsonPath("$.jsonrpc").value("2.0"))
 			.andExpect(jsonPath("$.id").value(2))
 			.andExpect(jsonPath("$.error").doesNotExist())
-			.andExpect(jsonPath("$.result.success").value(true))
-			.andExpect(jsonPath("$.result.result.id").value(1))
-			.andExpect(jsonPath("$.result.result.username").value("alice"))
-			.andExpect(jsonPath("$.result.errorMessage").doesNotExist());
+			.andExpect(jsonPath("$.result.isError").value(false))
+			.andExpect(jsonPath("$.result.content[0].type").value("text"))
+			.andExpect(jsonPath("$.result.content[0].text").value(allOf(
+				containsString("\"id\":1"),
+				containsString("\"username\":\"alice\"")
+			)));
 	}
 
 	@Test
-	void returnsToolFailureInsideResult() throws Exception {
+	void returnsToolFailureAsMcpToolErrorResult() throws Exception {
 		when(toolExecutor.execute(org.mockito.ArgumentMatchers.any()))
 			.thenReturn(McpToolResponse.error("MCP tool not found. name=missing"));
 
@@ -148,9 +152,9 @@ class McpControllerTest {
 			.andExpect(jsonPath("$.jsonrpc").value("2.0"))
 			.andExpect(jsonPath("$.id").value(2))
 			.andExpect(jsonPath("$.error").doesNotExist())
-			.andExpect(jsonPath("$.result.success").value(false))
-			.andExpect(jsonPath("$.result.result").doesNotExist())
-			.andExpect(jsonPath("$.result.errorMessage").value("MCP tool not found. name=missing"));
+			.andExpect(jsonPath("$.result.isError").value(true))
+			.andExpect(jsonPath("$.result.content[0].type").value("text"))
+			.andExpect(jsonPath("$.result.content[0].text").value("MCP tool not found. name=missing"));
 	}
 
 	@Test
@@ -171,8 +175,9 @@ class McpControllerTest {
 			.andExpect(jsonPath("$.jsonrpc").value("2.0"))
 			.andExpect(jsonPath("$.id").value(2))
 			.andExpect(jsonPath("$.error").doesNotExist())
-			.andExpect(jsonPath("$.result.success").value(false))
-			.andExpect(jsonPath("$.result.errorMessage").value("name is required"));
+			.andExpect(jsonPath("$.result.isError").value(true))
+			.andExpect(jsonPath("$.result.content[0].type").value("text"))
+			.andExpect(jsonPath("$.result.content[0].text").value("name is required"));
 	}
 
 	@Test
@@ -194,8 +199,9 @@ class McpControllerTest {
 			.andExpect(jsonPath("$.jsonrpc").value("2.0"))
 			.andExpect(jsonPath("$.id").value(2))
 			.andExpect(jsonPath("$.error").doesNotExist())
-			.andExpect(jsonPath("$.result.success").value(false))
-			.andExpect(jsonPath("$.result.errorMessage").value("arguments must be an object"));
+			.andExpect(jsonPath("$.result.isError").value(true))
+			.andExpect(jsonPath("$.result.content[0].type").value("text"))
+			.andExpect(jsonPath("$.result.content[0].text").value("arguments must be an object"));
 	}
 
 	@Test

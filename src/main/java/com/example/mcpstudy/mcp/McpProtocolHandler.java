@@ -9,6 +9,8 @@ import com.example.mcpstudy.tool.McpToolExecutor;
 import com.example.mcpstudy.tool.McpToolRequest;
 import com.example.mcpstudy.tool.McpToolResponse;
 import com.example.mcpstudy.tool.McpToolRegistry;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.stereotype.Component;
 
@@ -24,10 +26,12 @@ public class McpProtocolHandler {
 
 	private final McpToolRegistry toolRegistry;
 	private final McpToolExecutor toolExecutor;
+	private final ObjectMapper objectMapper;
 
-	public McpProtocolHandler(McpToolRegistry toolRegistry, McpToolExecutor toolExecutor) {
+	public McpProtocolHandler(McpToolRegistry toolRegistry, McpToolExecutor toolExecutor, ObjectMapper objectMapper) {
 		this.toolRegistry = toolRegistry;
 		this.toolExecutor = toolExecutor;
+		this.objectMapper = objectMapper;
 	}
 
 	public Optional<McpJsonRpcResponse> handle(McpJsonRpcRequest request) {
@@ -56,7 +60,7 @@ public class McpProtocolHandler {
 		}
 
 		if (TOOLS_CALL_METHOD.equals(request.method())) {
-			return Optional.of(McpJsonRpcResponse.result(request.id(), callTool(request.params())));
+			return Optional.of(McpJsonRpcResponse.result(request.id(), toToolCallResult(callTool(request.params()))));
 		}
 
 		return Optional.of(McpJsonRpcResponse.error(request.id(), -32601,
@@ -106,6 +110,30 @@ public class McpProtocolHandler {
 		return result;
 	}
 
+	private ToolCallResult toToolCallResult(McpToolResponse response) {
+		if (response.success()) {
+			return new ToolCallResult(List.of(new TextContent("text", toText(response.result()))), false);
+		}
+		return new ToolCallResult(List.of(new TextContent("text", response.errorMessage())), true);
+	}
+
+	private String toText(Object value) {
+		if (value == null) {
+			return "";
+		}
+
+		if (value instanceof String text) {
+			return text;
+		}
+
+		try {
+			return objectMapper.writeValueAsString(value);
+		}
+		catch (JsonProcessingException e) {
+			return String.valueOf(value);
+		}
+	}
+
 	private record InitializeResult(String protocolVersion, ServerInfo serverInfo, Capabilities capabilities) {
 	}
 
@@ -122,5 +150,11 @@ public class McpProtocolHandler {
 	}
 
 	private record ToolDefinition(String name, String description, Object inputSchema) {
+	}
+
+	private record ToolCallResult(List<TextContent> content, boolean isError) {
+	}
+
+	private record TextContent(String type, String text) {
 	}
 }
