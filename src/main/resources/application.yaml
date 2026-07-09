@@ -15,3 +15,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  ai:
+    mcp:
+      server:
+        protocol: STREAMABLE
+        name: spring-mcp-study-server
+        version: 0.1.0
+        type: SYNC
+        annotation-scanner:
+          enabled: true
+        streamable-http:
+          mcp-endpoint: /mcp
